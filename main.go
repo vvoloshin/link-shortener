@@ -1,8 +1,8 @@
 package main
 
 import (
-	"link-shortener/handlers"
-	"link-shortener/storage"
+	"github.com/vvoloshin/link-shortener/handlers"
+	"github.com/vvoloshin/link-shortener/storage"
 	"log"
 	"net/http"
 	"os"

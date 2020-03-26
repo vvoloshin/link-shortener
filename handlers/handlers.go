@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"link-shortener/storage"
+	"github.com/vvoloshin/link-shortener/storage"
 	"net/http"
 )
 
