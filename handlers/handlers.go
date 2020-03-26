@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/vvoloshin/link-shortener/crypto"
 	"github.com/vvoloshin/link-shortener/storage"
 	"net/http"
 )
@@ -9,9 +10,10 @@ import (
 func EncodeUrl(s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if url := r.PostFormValue("url"); url != "" {
-			s.Save(url, url)
+			hashed := crypto.Hash(url)
+			s.Save(hashed, url)
 			w.WriteHeader(201)
-			w.Write([]byte(url))
+			w.Write([]byte(hashed))
 		} else {
 			w.WriteHeader(204)
 			w.Write([]byte("not specified body with `url` parameter"))
