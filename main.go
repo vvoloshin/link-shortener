@@ -16,6 +16,7 @@ func main() {
 
 	http.Handle("/encode", handlers.EncodeUrl(valueMap))
 	http.Handle("/decode", handlers.DecodeUrl(valueMap))
+	http.Handle("/redirect", handlers.Redirect(valueMap))
 
 	log.Println("starts server at port: " + port)
 	err := http.ListenAndServe(":"+port, nil)

@@ -36,3 +36,17 @@ func DecodeUrl(s storage.Storage) http.Handler {
 	}
 	return http.HandlerFunc(handleFunc)
 }
+
+func Redirect(s storage.Storage) http.Handler {
+	handleFunc := func(w http.ResponseWriter, r *http.Request) {
+		if hashed := r.PostFormValue("url"); hashed != "" {
+			if url, err := s.Read(hashed); err == nil {
+				http.Redirect(w, r, url, http.StatusSeeOther)
+			} else {
+				w.WriteHeader(400)
+				w.Write([]byte("requested url not found"))
+			}
+		}
+	}
+	return http.HandlerFunc(handleFunc)
+}
