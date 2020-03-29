@@ -33,7 +33,7 @@ func (s SQLite) Save(key string, value string) error {
 	defer c.Close()
 	_, err := c.Exec("INSERT INTO URLS (HASHED, URL, CREATED) VALUES ($1, $2, $3)", key, value, time.Now().String())
 	if err != nil {
-		log.Println(err)
+		return err
 	}
 	log.Println("inserted row with key: ", key)
 	return nil
