@@ -17,6 +17,7 @@ func NewDefaultInMem() *Server {
 }
 
 func NewDefaultSQLite() *Server {
+	//todo: добавить инициализацию файла для sqlite
 	return &Server{
 		Port: ":8080",
 		Storage: storage.SQLite{

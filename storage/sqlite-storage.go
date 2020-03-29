@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/vvoloshin/link-shortener/dbmodels"
 	"log"
+	"time"
 )
 
 func (s SQLite) Read(key string) (string, error) {
@@ -16,7 +17,7 @@ func (s SQLite) Read(key string) (string, error) {
 
 	m := dbmodels.UrlModel{}
 	for rows.Next() {
-		err := rows.Scan(&m.Hashed, &m.Url)
+		err := rows.Scan(&m.Hashed, &m.Url, &m.Created)
 		if err != nil {
 			return "", fmt.Errorf("not found url by key")
 		}
@@ -30,7 +31,7 @@ func (s SQLite) Read(key string) (string, error) {
 func (s SQLite) Save(key string, value string) error {
 	c := s.connect()
 	defer c.Close()
-	_, err := c.Exec("INSERT INTO URLS (HASHED, URL) VALUES ($1, $2)", key, value)
+	_, err := c.Exec("INSERT INTO URLS (HASHED, URL, CREATED) VALUES ($1, $2, $3)", key, value, time.Now().String())
 	if err != nil {
 		log.Println(err)
 	}
