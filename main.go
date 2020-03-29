@@ -9,7 +9,7 @@ import (
 
 func main() {
 
-	s := config.NewDefault()
+	s := config.NewDefaultSQLite()
 	http.Handle("/encode", handlers.EncodeUrl(s.Storage))
 	http.Handle("/decode", handlers.DecodeUrl(s.Storage))
 	http.Handle("/redirect", handlers.Redirect(s.Storage))

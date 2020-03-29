@@ -7,9 +7,21 @@ type Server struct {
 	Storage storage.Storage
 }
 
-func NewDefault() *Server {
+func NewDefaultInMem() *Server {
 	return &Server{
-		Port:    ":8080",
-		Storage: storage.InMemStorage{Store: map[string]string{}},
+		Port: ":8080",
+		Storage: storage.InMemStorage{
+			Store: map[string]string{},
+		},
+	}
+}
+
+func NewDefaultSQLite() *Server {
+	return &Server{
+		Port: ":8080",
+		Storage: storage.SQLite{
+			Name:   "c:\\sqlite\\file.db",
+			Driver: "sqlite3",
+		},
 	}
 }
