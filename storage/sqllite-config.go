@@ -16,5 +16,9 @@ func (s SQLite) connect() *sql.DB {
 	if err != nil {
 		log.Fatal("can't connect to database: ", s.Name)
 	}
+	err = db.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
 	return db
 }
