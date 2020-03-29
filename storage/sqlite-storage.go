@@ -12,9 +12,8 @@ func (s SQLite) Read(key string) (string, error) {
 	defer c.Close()
 	rows, err := c.Query("SELECT * FROM URLS WHERE HASHED = $1", key)
 	if err != nil {
-		log.Fatal("error with reading database file ")
+		return "", err
 	}
-
 	m := dbmodels.UrlModel{}
 	for rows.Next() {
 		err := rows.Scan(&m.Hashed, &m.Url, &m.Created)

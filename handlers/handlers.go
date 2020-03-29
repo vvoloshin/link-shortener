@@ -9,7 +9,7 @@ import (
 //кодировка, сохранение строки, возврат хеша
 func EncodeUrl(s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
-		if !validRequest(w, r, "POST") {
+		if !validRequestMethod(w, r, "POST") {
 			return
 		}
 		if rawUrl := r.PostFormValue("url"); rawUrl != "" {
@@ -30,7 +30,7 @@ func EncodeUrl(s storage.Storage) http.Handler {
 //hashed - хэш от rawUrl, хранится в Storage в качестве `key`
 func DecodeUrl(s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
-		if !validRequest(w, r, "POST") {
+		if !validRequestMethod(w, r, "POST") {
 			return
 		}
 		if hashed := r.PostFormValue("url"); hashed != "" {
@@ -50,7 +50,7 @@ func DecodeUrl(s storage.Storage) http.Handler {
 
 func Redirect(s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
-		if !validRequest(w, r, "POST") {
+		if !validRequestMethod(w, r, "POST") {
 			return
 		}
 		if hashed := r.PostFormValue("url"); hashed != "" {
@@ -68,7 +68,7 @@ func Redirect(s storage.Storage) http.Handler {
 	return http.HandlerFunc(handleFunc)
 }
 
-func validRequest(w http.ResponseWriter, r *http.Request, m string) bool {
+func validRequestMethod(w http.ResponseWriter, r *http.Request, m string) bool {
 	if r.Method != m {
 		w.WriteHeader(400)
 		w.Write([]byte("method " + r.Method + " not allowed"))
