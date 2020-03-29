@@ -19,7 +19,7 @@ func (s SQLite) Read(key string) (string, error) {
 	for rows.Next() {
 		err := rows.Scan(&m.Hashed, &m.Url, &m.Created)
 		if err != nil {
-			return "", fmt.Errorf("not found url by key")
+			return "", err
 		}
 	}
 	if m.Url == "" {
