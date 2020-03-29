@@ -1,25 +1,21 @@
 package main
 
 import (
+	"github.com/vvoloshin/link-shortener/config"
 	"github.com/vvoloshin/link-shortener/handlers"
-	"github.com/vvoloshin/link-shortener/storage"
 	"log"
 	"net/http"
 )
 
-const port = "8080"
-
 func main() {
 
-	valueMap := new(storage.InMemStorage)
-	valueMap.Store = map[string]string{}
+	s := config.NewDefault()
+	http.Handle("/encode", handlers.EncodeUrl(s.Storage))
+	http.Handle("/decode", handlers.DecodeUrl(s.Storage))
+	http.Handle("/redirect", handlers.Redirect(s.Storage))
 
-	http.Handle("/encode", handlers.EncodeUrl(valueMap))
-	http.Handle("/decode", handlers.DecodeUrl(valueMap))
-	http.Handle("/redirect", handlers.Redirect(valueMap))
-
-	log.Println("starts server at port: " + port)
-	err := http.ListenAndServe(":"+port, nil)
+	log.Println("starts server at port: " + s.Port)
+	err := http.ListenAndServe(s.Port, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
