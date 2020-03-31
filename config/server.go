@@ -7,21 +7,12 @@ type Server struct {
 	Storage storage.Storage
 }
 
-func NewDefaultInMem() *Server {
-	return &Server{
-		Port: ":8080",
-		Storage: storage.InMemStorage{
-			Store: map[string]string{},
-		},
-	}
-}
-
 func NewDefaultSQLite() *Server {
 	//todo: добавить инициализацию файла для sqlite
 	return &Server{
 		Port: ":8080",
 		Storage: storage.SQLite{
-			Name:   "c:\\sqlite\\file.db",
+			Name:   ".\\sqlite\\base.db",
 			Driver: "sqlite3",
 		},
 	}

@@ -37,3 +37,7 @@ func (s SQLite) Save(key string, value string) error {
 	log.Println("inserted row with key: ", key)
 	return nil
 }
+
+func (s SQLite) Init() error {
+	panic("not yet")
+}

@@ -4,11 +4,21 @@ import (
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
+	"os"
 )
 
 type SQLite struct {
 	Name   string
 	Driver string
+}
+
+func init() {
+	_, err := os.Stat(".\\sqlite\\base.db")
+	if os.IsNotExist(err) {
+		log.Println("database empty, create it")
+		os.Mkdir(".\\sqlite", 0755)
+		os.Create(".\\sqlite\\base.db")
+	}
 }
 
 func (s SQLite) connect() *sql.DB {
