@@ -12,13 +12,17 @@ type SQLite struct {
 	Driver string
 }
 
+const (
+	file = ".\\sqlite\\base.db"
+	dir  = ".\\sqlite"
+)
+
 func init() {
-	_, err := os.Stat(".\\sqlite\\base.db")
-	if os.IsNotExist(err) {
+	if isFileNotExist(file) {
 		log.Println("database empty, create it")
-		os.Mkdir(".\\sqlite", 0755)
-		os.Create(".\\sqlite\\base.db")
+		createFile(dir, file)
 	}
+	log.Println("found existing database file")
 }
 
 func (s SQLite) connect() *sql.DB {
@@ -28,7 +32,18 @@ func (s SQLite) connect() *sql.DB {
 	}
 	err = db.Ping()
 	if err != nil {
+		log.Fatal("can't ping to database: ", s.Name)
 		log.Fatal(err)
 	}
 	return db
+}
+
+func createFile(d, f string) {
+	os.Mkdir(d, 0755)
+	os.Create(f)
+}
+
+func isFileNotExist(f string) bool {
+	_, err := os.Stat(f)
+	return os.IsNotExist(err)
 }
