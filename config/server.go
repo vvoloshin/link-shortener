@@ -7,13 +7,9 @@ type Server struct {
 	Storage storage.Storage
 }
 
-func NewDefaultSQLite() *Server {
-	//todo: добавить инициализацию файла для sqlite
+func NewDefaultServer(port, file, driver string) *Server {
 	return &Server{
-		Port: ":8080",
-		Storage: storage.SQLite{
-			Name:   ".\\sqlite\\base.db",
-			Driver: "sqlite3",
-		},
+		Port:    port,
+		Storage: storage.NewSQLite(file, driver),
 	}
 }

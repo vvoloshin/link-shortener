@@ -8,12 +8,12 @@ import (
 )
 
 func (s SQLite) Read(key string) (string, error) {
-	c := s.connect()
-	defer c.Close()
-	rows, err := c.Query("SELECT * FROM URLS WHERE HASHED = $1", key)
+	db := s.DB
+	rows, err := db.Query("SELECT * FROM URLS WHERE HASHED = $1", key)
 	if err != nil {
 		return "", err
 	}
+	defer rows.Close()
 	m := dbmodels.UrlModel{}
 	for rows.Next() {
 		err := rows.Scan(&m.Hashed, &m.Url, &m.Created)
@@ -28,9 +28,8 @@ func (s SQLite) Read(key string) (string, error) {
 }
 
 func (s SQLite) Save(key string, value string) error {
-	c := s.connect()
-	defer c.Close()
-	_, err := c.Exec("INSERT INTO URLS (HASHED, URL, CREATED) VALUES ($1, $2, $3)", key, value, time.Now().String())
+	db := s.DB
+	_, err := db.Exec("INSERT INTO URLS (HASHED, URL, CREATED) VALUES ($1, $2, $3)", key, value, time.Now().String())
 	if err != nil {
 		return err
 	}
@@ -38,6 +37,11 @@ func (s SQLite) Save(key string, value string) error {
 	return nil
 }
 
-func (s SQLite) Init() error {
-	panic("not yet")
+func (s SQLite) InitTable() error {
+	db := s.DB
+	_, err := db.Exec("CREATE TABLE IF NOT EXISTS URLS (HASHED TEXT PRIMARY KEY NOT NULL, URL TEXT NOT NULL,CREATED TEXT NOT NULL)")
+	if err != nil {
+		return err
+	}
+	return nil
 }

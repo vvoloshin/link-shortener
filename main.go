@@ -5,18 +5,46 @@ import (
 	"github.com/vvoloshin/link-shortener/handlers"
 	"log"
 	"net/http"
+	"os"
 )
 
+const (
+	file   = ".\\sqlite\\base.db"
+	dir    = ".\\sqlite"
+	driver = "sqlite3"
+	port   = ":8080"
+)
+
+func init() {
+	if isFileNotExist(file) {
+		log.Println("database empty, created it")
+		createFile(dir, file)
+	}
+	log.Println("found existing database file")
+}
+
 func main() {
-
-	s := config.NewDefaultSQLite()
-	http.Handle("/encode", handlers.EncodeUrl(s.Storage))
-	http.Handle("/decode", handlers.DecodeUrl(s.Storage))
-	http.Handle("/redirect", handlers.Redirect(s.Storage))
-
-	log.Println("starts server at port: " + s.Port)
-	err := http.ListenAndServe(s.Port, nil)
+	server := config.NewDefaultServer(port, file, driver)
+	err := server.Storage.InitTable()
 	if err != nil {
 		log.Fatal(err)
 	}
+	http.Handle("/encode", handlers.EncodeUrl(server.Storage))
+	http.Handle("/decode", handlers.DecodeUrl(server.Storage))
+	http.Handle("/redirect", handlers.Redirect(server.Storage))
+	log.Println("starts server at port: " + server.Port)
+	err = http.ListenAndServe(server.Port, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func createFile(d, f string) {
+	os.Mkdir(d, 0755)
+	os.Create(f)
+}
+
+func isFileNotExist(f string) bool {
+	_, err := os.Stat(f)
+	return os.IsNotExist(err)
 }
