@@ -32,7 +32,7 @@ func (s SQLite) connect() *sql.DB {
 	}
 	err = db.Ping()
 	if err != nil {
-		log.Fatal("can't ping to database: ", s.Name)
+		log.Println("can't ping to database: ", s.Name)
 		log.Fatal(err)
 	}
 	return db
