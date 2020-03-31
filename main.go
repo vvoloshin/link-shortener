@@ -6,13 +6,17 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 const (
-	file   = ".\\sqlite\\base.db"
-	dir    = ".\\sqlite"
 	driver = "sqlite3"
 	port   = ":8080"
+)
+
+var (
+	file = filepath.FromSlash("sqlite\\base.db")
+	dir  = filepath.FromSlash("sqlite")
 )
 
 func init() {
