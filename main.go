@@ -35,7 +35,7 @@ func main() {
 	}
 	http.Handle("/encode", handlers.EncodeUrl(server.Storage))
 	http.Handle("/decode", handlers.DecodeUrl(server.Storage))
-	http.Handle("/redirect/", handlers.Redirect(server.Storage))
+	http.Handle("/redirect/", handlers.Redirect("/redirect/", server.Storage))
 	log.Println("starts server at port: " + server.Port)
 	err = http.ListenAndServe(server.Port, nil)
 	if err != nil {

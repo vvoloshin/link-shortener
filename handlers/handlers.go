@@ -7,10 +7,20 @@ import (
 	"strings"
 )
 
+const (
+	apikey    = "777"
+	apiheader = "x-api-key"
+)
+
 //кодировка, сохранение строки, возврат хеша
 func EncodeUrl(s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if !validRequestMethod(w, r, http.MethodPost) {
+			return
+		}
+		if r.Header.Get(apiheader) != apikey {
+			w.WriteHeader(http.StatusNetworkAuthenticationRequired)
+			w.Write([]byte("not specified authentication"))
 			return
 		}
 		if rawUrl := r.PostFormValue("url"); rawUrl != "" {
@@ -57,12 +67,12 @@ func DecodeUrl(s storage.Storage) http.Handler {
 	return http.HandlerFunc(handleFunc)
 }
 
-func Redirect(s storage.Storage) http.Handler {
+func Redirect(prefix string, s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if !validRequestMethod(w, r, http.MethodGet) {
 			return
 		}
-		if hashed := strings.TrimPrefix(r.URL.Path, "/redirect/"); hashed != "" {
+		if hashed := strings.TrimPrefix(r.URL.Path, prefix); hashed != "" {
 			if rawUrl, err := s.Read(hashed); err == nil {
 				http.Redirect(w, r, rawUrl, http.StatusMovedPermanently)
 			} else {
