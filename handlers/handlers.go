@@ -9,16 +9,16 @@ import (
 //кодировка, сохранение строки, возврат хеша
 func EncodeUrl(s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
-		if !validRequestMethod(w, r, "POST") {
+		if !validRequestMethod(w, r, http.MethodPost) {
 			return
 		}
 		if rawUrl := r.PostFormValue("url"); rawUrl != "" {
 			hashed := crypto.Hash(rawUrl)
 			s.Save(hashed, rawUrl)
-			w.WriteHeader(201)
+			w.WriteHeader(http.StatusCreated)
 			w.Write([]byte(hashed))
 		} else {
-			w.WriteHeader(204)
+			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("not specified body with `url` parameter"))
 		}
 	}
@@ -30,18 +30,18 @@ func EncodeUrl(s storage.Storage) http.Handler {
 //hashed - хэш от rawUrl, хранится в Storage в качестве `key`
 func DecodeUrl(s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
-		if !validRequestMethod(w, r, "POST") {
+		if !validRequestMethod(w, r, http.MethodPost) {
 			return
 		}
 		if hashed := r.PostFormValue("url"); hashed != "" {
 			if rawUrl, err := s.Read(hashed); err == nil {
 				w.Write([]byte(rawUrl))
 			} else {
-				w.WriteHeader(400)
+				w.WriteHeader(http.StatusBadRequest)
 				w.Write([]byte("requested url not found in Storage"))
 			}
 		} else {
-			w.WriteHeader(400)
+			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("key-url not found in request"))
 		}
 	}
@@ -50,18 +50,18 @@ func DecodeUrl(s storage.Storage) http.Handler {
 
 func Redirect(s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
-		if !validRequestMethod(w, r, "POST") {
+		if !validRequestMethod(w, r, http.MethodPost) {
 			return
 		}
 		if hashed := r.PostFormValue("url"); hashed != "" {
 			if rawUrl, err := s.Read(hashed); err == nil {
-				http.Redirect(w, r, rawUrl, http.StatusSeeOther)
+				http.Redirect(w, r, rawUrl, http.StatusMovedPermanently)
 			} else {
-				w.WriteHeader(400)
+				w.WriteHeader(http.StatusBadRequest)
 				w.Write([]byte("requested url not found"))
 			}
 		} else {
-			w.WriteHeader(400)
+			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("key-url not found in request"))
 		}
 	}
@@ -70,7 +70,7 @@ func Redirect(s storage.Storage) http.Handler {
 
 func validRequestMethod(w http.ResponseWriter, r *http.Request, m string) bool {
 	if r.Method != m {
-		w.WriteHeader(400)
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("method " + r.Method + " not allowed"))
 		return false
 	}
