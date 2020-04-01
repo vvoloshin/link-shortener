@@ -53,12 +53,13 @@ func BundleUrl(s storage.Storage) http.Handler {
 		}
 		if r.Header.Get(apiheader) != apikey {
 			w.WriteHeader(http.StatusNetworkAuthenticationRequired)
-			w.Write([]byte("not specified authentication"))
+			w.Write([]byte("not specified or incorrect authentication"))
 			return
 		}
 		if !hasContentType(r, "text/plain") {
 			w.WriteHeader(http.StatusUnsupportedMediaType)
-			w.Write([]byte("not specified authentication"))
+			w.Write([]byte("not specified or unsupported media-type"))
+			return
 		}
 		panic("not implemented")
 	}
