@@ -37,9 +37,13 @@ func (s SQLite) Save(key string, value string) error {
 	return nil
 }
 
-func (s SQLite) InitTable() error {
+func (s SQLite) InitTables() error {
 	db := s.DB
 	_, err := db.Exec("CREATE TABLE IF NOT EXISTS URLS (HASHED TEXT PRIMARY KEY NOT NULL, URL TEXT NOT NULL,CREATED TEXT NOT NULL)")
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS URLS_ARCHIVED (HASHED TEXT PRIMARY KEY NOT NULL, URL TEXT NOT NULL,CREATED TEXT NOT NULL, ARCHIVED TEXT NOT NULL)")
 	if err != nil {
 		return err
 	}

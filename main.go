@@ -29,7 +29,7 @@ func init() {
 
 func main() {
 	server := config.NewDefaultServer(port, file, driver)
-	err := server.Storage.InitTable()
+	err := server.Storage.InitTables()
 	if err != nil {
 		log.Fatal(err)
 	}
