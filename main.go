@@ -34,6 +34,7 @@ func main() {
 		log.Fatal(err)
 	}
 	http.Handle("/encode", handlers.EncodeUrl(server.Storage))
+	http.Handle("/bundle", handlers.BundleUrl(server.Storage))
 	http.Handle("/decode", handlers.DecodeUrl(server.Storage))
 	http.Handle("/redirect/", handlers.Redirect("/redirect/", server.Storage))
 	log.Println("starts server at port: " + server.Port)

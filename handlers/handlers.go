@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/vvoloshin/link-shortener/crypto"
 	"github.com/vvoloshin/link-shortener/storage"
+	"mime"
 	"net/http"
 	"strings"
 )
@@ -40,6 +41,26 @@ func EncodeUrl(s storage.Storage) http.Handler {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("not specified body with `url` parameter"))
 		}
+	}
+	return http.HandlerFunc(handleFunc)
+}
+
+//кодировка, сохранение пакета строк, возврат хешей
+func BundleUrl(s storage.Storage) http.Handler {
+	handleFunc := func(w http.ResponseWriter, r *http.Request) {
+		if !validRequestMethod(w, r, http.MethodPost) {
+			return
+		}
+		if r.Header.Get(apiheader) != apikey {
+			w.WriteHeader(http.StatusNetworkAuthenticationRequired)
+			w.Write([]byte("not specified authentication"))
+			return
+		}
+		if !hasContentType(r, "text/plain") {
+			w.WriteHeader(http.StatusUnsupportedMediaType)
+			w.Write([]byte("not specified authentication"))
+		}
+		panic("not implemented")
 	}
 	return http.HandlerFunc(handleFunc)
 }
@@ -94,4 +115,22 @@ func validRequestMethod(w http.ResponseWriter, r *http.Request, m string) bool {
 		return false
 	}
 	return true
+}
+
+func hasContentType(r *http.Request, mimetype string) bool {
+	contentType := r.Header.Get("Content-type")
+	if contentType == "" {
+		return false
+	}
+
+	for _, v := range strings.Split(contentType, ",") {
+		t, _, err := mime.ParseMediaType(v)
+		if err != nil {
+			break
+		}
+		if t == mimetype {
+			return true
+		}
+	}
+	return false
 }
