@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"log"
 	"math/big"
+	"math/rand"
 )
 
 func Encode(payload string) string {
@@ -24,11 +25,16 @@ func toHmac(s string) string {
 	return hexStr
 }
 
-//кодирование в 62-ричную систему
+//кодирование в 62-ричную систему, + костыльный рандомизатор
 func to62(s string) string {
-	bigInt := new(big.Int)
-	bigInt.SetString(s, 16)
-	text62 := bigInt.Text(62)
+	accum := new(big.Int)
+	accum.SetString(s, 16)
+	randomByte := make([]byte, 1)
+	rand.Read(randomByte)
+	s1 := accum.Append(randomByte, 62)
+	s2 := string(s1)
+	accum.SetString(s2, 62)
+	text62 := accum.Text(62)
 	log.Println("debug: 62-digit-string: ", text62)
 	return text62
 }

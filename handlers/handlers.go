@@ -13,7 +13,15 @@ func EncodeUrl(s storage.Storage) http.Handler {
 			return
 		}
 		if rawUrl := r.PostFormValue("url"); rawUrl != "" {
-			hashed := crypto.Encode(rawUrl)
+			var hashed string
+			for {
+				//ищем уже сохраненные ключи, если находим (коллизия), генерируем заново, иначе - сохраняем
+				hashed = crypto.Encode(rawUrl)
+				stored, _ := s.Read(hashed)
+				if stored == "" {
+					break
+				}
+			}
 			s.Save(hashed, rawUrl)
 			w.WriteHeader(http.StatusCreated)
 			w.Write([]byte(hashed))
