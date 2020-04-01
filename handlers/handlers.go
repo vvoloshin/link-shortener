@@ -13,7 +13,7 @@ func EncodeUrl(s storage.Storage) http.Handler {
 			return
 		}
 		if rawUrl := r.PostFormValue("url"); rawUrl != "" {
-			hashed := crypto.Encode62(rawUrl)
+			hashed := crypto.Encode(rawUrl)
 			s.Save(hashed, rawUrl)
 			w.WriteHeader(http.StatusCreated)
 			w.Write([]byte(hashed))

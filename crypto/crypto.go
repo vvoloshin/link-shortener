@@ -8,9 +8,10 @@ import (
 	"math/big"
 )
 
-func Encode62(payload string) string {
+func Encode(payload string) string {
 	hexStr := toHmac(payload)
-	return to62(hexStr)
+	digit62 := to62(hexStr)
+	return cutStringTo8(digit62)
 }
 
 //кодирование при помощи ключа в 16-ричное хэш-значение
@@ -30,4 +31,34 @@ func to62(s string) string {
 	text62 := bigInt.Text(62)
 	log.Println("debug: 62-digit-string: ", text62)
 	return text62
+}
+
+//укорачивание строки до 6 символов, пропуск некоторых двузначных символов
+func cutStringTo8(s string) string {
+	excl := []rune{'0', 'O', 'l', 'i', 'I'}
+	var res []rune
+	count := 0
+	for _, char := range s {
+		if count == 8 {
+			break
+		}
+		if contains(excl, char) {
+			continue
+		}
+		res = append(res, char)
+		count++
+	}
+	resShort := string(res)
+	log.Println("debug: cutStringTo8-string: ", resShort)
+	return resShort
+}
+
+//поиск руны в слайсе, true - если содержит
+func contains(src []rune, r rune) bool {
+	for _, n := range src {
+		if r == n {
+			return true
+		}
+	}
+	return false
 }
