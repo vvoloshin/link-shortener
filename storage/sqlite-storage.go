@@ -37,6 +37,10 @@ func (s SQLite) Save(key string, value string) error {
 	return nil
 }
 
+func (s SQLite) Archive(key string) error {
+	panic("not implemented")
+}
+
 func (s SQLite) InitTables() error {
 	db := s.DB
 	_, err := db.Exec("CREATE TABLE IF NOT EXISTS URLS (HASHED TEXT PRIMARY KEY NOT NULL, URL TEXT NOT NULL,CREATED TEXT NOT NULL)")
