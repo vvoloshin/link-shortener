@@ -4,6 +4,7 @@ import (
 	"github.com/vvoloshin/link-shortener/crypto"
 	"github.com/vvoloshin/link-shortener/storage"
 	"net/http"
+	"strings"
 )
 
 //кодировка, сохранение строки, возврат хеша
@@ -58,10 +59,10 @@ func DecodeUrl(s storage.Storage) http.Handler {
 
 func Redirect(s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
-		if !validRequestMethod(w, r, http.MethodPost) {
+		if !validRequestMethod(w, r, http.MethodGet) {
 			return
 		}
-		if hashed := r.PostFormValue("url"); hashed != "" {
+		if hashed := strings.TrimPrefix(r.URL.Path, "/redirect/"); hashed != "" {
 			if rawUrl, err := s.Read(hashed); err == nil {
 				http.Redirect(w, r, rawUrl, http.StatusMovedPermanently)
 			} else {
