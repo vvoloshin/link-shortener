@@ -4,6 +4,9 @@ import (
 	"github.com/vvoloshin/link-shortener/crypto"
 	"github.com/vvoloshin/link-shortener/storage"
 	"github.com/vvoloshin/link-shortener/util"
+	"io"
+	"io/ioutil"
+	"log"
 	"mime"
 	"net/http"
 	"strings"
@@ -19,15 +22,7 @@ func EncodeUrl(s storage.Storage) http.Handler {
 			return
 		}
 		if rawUrl := r.PostFormValue("url"); rawUrl != "" {
-			var hashed string
-			for {
-				//ищем уже сохраненные ключи, если находим (коллизия), генерируем заново, иначе - сохраняем
-				hashed = crypto.Encode(rawUrl)
-				stored, _ := s.Read(hashed)
-				if stored == "" {
-					break
-				}
-			}
+			hashed := generateHash(rawUrl, s)
 			s.Save(hashed, rawUrl)
 			w.WriteHeader(http.StatusCreated)
 			w.Write([]byte(hashed))
@@ -39,7 +34,7 @@ func EncodeUrl(s storage.Storage) http.Handler {
 	return http.HandlerFunc(handleFunc)
 }
 
-//кодировка, сохранение пакета строк, возврат хешей
+//кодировка, сохранение пакета строк, возврат хешей в теле ответа
 func BundleUrl(s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if !validRequestMethod(w, r, http.MethodPost) {
@@ -53,9 +48,35 @@ func BundleUrl(s storage.Storage) http.Handler {
 			w.Write([]byte("not specified or unsupported media-type"))
 			return
 		}
-		panic("not implemented")
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			log.Printf("error reading body: %v", err)
+			http.Error(w, "can't read body", http.StatusBadRequest)
+			return
+		}
+		nonEmptyRawUrls := splitToLines(body)
+		var hashedUrls []string
+		for _, v := range nonEmptyRawUrls {
+			hashed := generateHash(v, s)
+			s.Save(hashed, v)
+			hashedUrls = append(hashedUrls, hashed)
+		}
+		io.WriteString(w, strings.Join(hashedUrls, "\n"))
 	}
 	return http.HandlerFunc(handleFunc)
+}
+
+func generateHash(rawUrl string, s storage.Storage) string {
+	var hashed string
+	for {
+		//ищем уже сохраненные ключи, если уже находим в хранилище (коллизия), генерируем заново
+		hashed = crypto.Encode(rawUrl)
+		stored, _ := s.Read(hashed)
+		if stored == "" {
+			break
+		}
+	}
+	return hashed
 }
 
 //поиск по хешу, возврат оригинальной строки
@@ -101,6 +122,17 @@ func Redirect(prefix string, s storage.Storage) http.Handler {
 	return http.HandlerFunc(handleFunc)
 }
 
+func splitToLines(body []byte) []string {
+	rawUrlsBody := strings.Split(string(body), "\n")
+	var nonEmptyRawUrls []string
+	for _, v := range rawUrlsBody {
+		if v != "" {
+			nonEmptyRawUrls = append(nonEmptyRawUrls, v)
+		}
+	}
+	return nonEmptyRawUrls
+}
+
 func validRequestMethod(w http.ResponseWriter, r *http.Request, m string) bool {
 	if r.Method != m {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -115,7 +147,6 @@ func hasContentType(r *http.Request, mimetype string) bool {
 	if contentType == "" {
 		return false
 	}
-
 	for _, v := range strings.Split(contentType, ",") {
 		t, _, err := mime.ParseMediaType(v)
 		if err != nil {
