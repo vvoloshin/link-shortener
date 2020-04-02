@@ -1,47 +1,56 @@
 package main
 
 import (
-	"github.com/vvoloshin/link-shortener/config"
 	"github.com/vvoloshin/link-shortener/handlers"
+	"github.com/vvoloshin/link-shortener/server"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 )
 
-const (
-	driver    = "sqlite3"
-	port      = ":8080"
-	shortBase = "https://short.com/"
-)
+type Config struct {
+	Driver    string
+	Port      string
+	ShortBase string
+	DBFile    string
+	DBDir     string
+}
 
-var (
-	file = filepath.FromSlash("sqlite\\base.db")
-	dir  = filepath.FromSlash("sqlite")
-)
+func main() {
+	config := readConfig()
+	initDb(config)
+	sqliteServer := server.NewServer(config.Port, config.DBFile, config.Driver)
+	err := sqliteServer.Storage.InitTables()
+	if err != nil {
+		log.Fatal(err)
+	}
+	http.Handle("/encode", handlers.EncodeUrl(config.ShortBase, sqliteServer.Storage))
+	http.Handle("/bundle", handlers.BundleUrl(config.ShortBase, sqliteServer.Storage))
+	http.Handle("/decode", handlers.DecodeUrl(sqliteServer.Storage))
+	http.Handle("/redirect/", handlers.Redirect("/redirect/", sqliteServer.Storage))
+	log.Println("starts server at port: " + sqliteServer.Port)
+	err = http.ListenAndServe(sqliteServer.Port, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
-func init() {
-	if isFileNotExist(file) {
+func initDb(config *Config) {
+	if isFileNotExist(config.DBFile) {
 		log.Println("database empty, created it")
-		createFile(dir, file)
+		createFile(config.DBDir, config.DBFile)
 	}
 	log.Println("found existing database file")
 }
 
-func main() {
-	server := config.NewDefaultServer(port, file, driver)
-	err := server.Storage.InitTables()
-	if err != nil {
-		log.Fatal(err)
-	}
-	http.Handle("/encode", handlers.EncodeUrl(shortBase, server.Storage))
-	http.Handle("/bundle", handlers.BundleUrl(shortBase, server.Storage))
-	http.Handle("/decode", handlers.DecodeUrl(server.Storage))
-	http.Handle("/redirect/", handlers.Redirect("/redirect/", server.Storage))
-	log.Println("starts server at port: " + server.Port)
-	err = http.ListenAndServe(server.Port, nil)
-	if err != nil {
-		log.Fatal(err)
+func readConfig() *Config {
+	return &Config{
+		Driver:    "sqlite3",
+		Port:      ":8080",
+		ShortBase: "https://short.com",
+		DBFile:    filepath.FromSlash("sqlite\\base.db"),
+		DBDir:     filepath.FromSlash("sqlite"),
 	}
 }
 
