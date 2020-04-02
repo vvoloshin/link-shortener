@@ -3,14 +3,10 @@ package handlers
 import (
 	"github.com/vvoloshin/link-shortener/crypto"
 	"github.com/vvoloshin/link-shortener/storage"
+	"github.com/vvoloshin/link-shortener/util"
 	"mime"
 	"net/http"
 	"strings"
-)
-
-const (
-	apikey    = "777"
-	apiheader = "x-api-key"
 )
 
 //кодировка, сохранение строки, возврат хеша
@@ -19,9 +15,7 @@ func EncodeUrl(s storage.Storage) http.Handler {
 		if !validRequestMethod(w, r, http.MethodPost) {
 			return
 		}
-		if r.Header.Get(apiheader) != apikey {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("not specified authentication"))
+		if !util.IsAuthenticated(w, r) {
 			return
 		}
 		if rawUrl := r.PostFormValue("url"); rawUrl != "" {
@@ -51,9 +45,7 @@ func BundleUrl(s storage.Storage) http.Handler {
 		if !validRequestMethod(w, r, http.MethodPost) {
 			return
 		}
-		if r.Header.Get(apiheader) != apikey {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("not specified or incorrect authentication"))
+		if !util.IsAuthenticated(w, r) {
 			return
 		}
 		if !hasContentType(r, "text/plain") {

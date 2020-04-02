@@ -11,8 +11,8 @@ import (
 
 func Encode(payload string) string {
 	hexStr := toHmac(payload)
-	digit62 := to62(hexStr)
-	return cutStringTo8(digit62)
+	digit62 := encodeToBasis(hexStr, 62)
+	return cutStringToLimit(digit62, 8)
 }
 
 //кодирование при помощи ключа в 16-ричное хэш-значение
@@ -26,26 +26,26 @@ func toHmac(s string) string {
 }
 
 //кодирование в 62-ричную систему, + костыльный рандомизатор
-func to62(s string) string {
+func encodeToBasis(s string, base int) string {
 	accum := new(big.Int)
 	accum.SetString(s, 16)
 	randomByte := make([]byte, 1)
 	rand.Read(randomByte)
-	s1 := accum.Append(randomByte, 62)
+	s1 := accum.Append(randomByte, base)
 	s2 := string(s1)
-	accum.SetString(s2, 62)
-	text62 := accum.Text(62)
+	accum.SetString(s2, base)
+	text62 := accum.Text(base)
 	log.Println("debug: 62-digit-string: ", text62)
 	return text62
 }
 
 //укорачивание строки до 6 символов, пропуск некоторых двузначных символов
-func cutStringTo8(s string) string {
+func cutStringToLimit(s string, limit int) string {
 	excl := []rune{'0', 'O', 'l', 'i', 'I'}
 	var res []rune
 	count := 0
 	for _, char := range s {
-		if count == 8 {
+		if count == limit {
 			break
 		}
 		if contains(excl, char) {
@@ -55,7 +55,7 @@ func cutStringTo8(s string) string {
 		count++
 	}
 	resShort := string(res)
-	log.Println("debug: cutStringTo8-string: ", resShort)
+	log.Println("debug: cutStringToLimit-string: ", resShort)
 	return resShort
 }
 
