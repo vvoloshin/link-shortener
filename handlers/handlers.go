@@ -20,7 +20,7 @@ func EncodeUrl(s storage.Storage) http.Handler {
 			return
 		}
 		if r.Header.Get(apiheader) != apikey {
-			w.WriteHeader(http.StatusNetworkAuthenticationRequired)
+			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("not specified authentication"))
 			return
 		}
@@ -52,7 +52,7 @@ func BundleUrl(s storage.Storage) http.Handler {
 			return
 		}
 		if r.Header.Get(apiheader) != apikey {
-			w.WriteHeader(http.StatusNetworkAuthenticationRequired)
+			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("not specified or incorrect authentication"))
 			return
 		}
@@ -78,11 +78,11 @@ func DecodeUrl(s storage.Storage) http.Handler {
 			if rawUrl, err := s.Read(hashed); err == nil {
 				w.Write([]byte(rawUrl))
 			} else {
-				w.WriteHeader(http.StatusBadRequest)
+				w.WriteHeader(http.StatusNotFound)
 				w.Write([]byte("requested url not found in Storage"))
 			}
 		} else {
-			w.WriteHeader(http.StatusBadRequest)
+			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte("key-url not found in request"))
 		}
 	}
@@ -98,11 +98,11 @@ func Redirect(prefix string, s storage.Storage) http.Handler {
 			if rawUrl, err := s.Read(hashed); err == nil {
 				http.Redirect(w, r, rawUrl, http.StatusMovedPermanently)
 			} else {
-				w.WriteHeader(http.StatusBadRequest)
+				w.WriteHeader(http.StatusNotFound)
 				w.Write([]byte("requested url not found"))
 			}
 		} else {
-			w.WriteHeader(http.StatusBadRequest)
+			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte("key-url not found in request"))
 		}
 	}
@@ -111,7 +111,7 @@ func Redirect(prefix string, s storage.Storage) http.Handler {
 
 func validRequestMethod(w http.ResponseWriter, r *http.Request, m string) bool {
 	if r.Method != m {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusMethodNotAllowed)
 		w.Write([]byte("method " + r.Method + " not allowed"))
 		return false
 	}
