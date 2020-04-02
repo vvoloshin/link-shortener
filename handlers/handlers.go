@@ -13,7 +13,7 @@ import (
 )
 
 //кодировка, сохранение строки, возврат хеша
-func EncodeUrl(s storage.Storage) http.Handler {
+func EncodeUrl(base string, s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if !validRequestMethod(w, r, http.MethodPost) {
 			return
@@ -25,7 +25,7 @@ func EncodeUrl(s storage.Storage) http.Handler {
 			hashed := generateHash(rawUrl, s)
 			s.Save(hashed, rawUrl)
 			w.WriteHeader(http.StatusCreated)
-			w.Write([]byte(hashed))
+			w.Write([]byte(base + hashed))
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("not specified body with `url` parameter"))
@@ -35,7 +35,7 @@ func EncodeUrl(s storage.Storage) http.Handler {
 }
 
 //кодировка, сохранение пакета строк, возврат хешей в теле ответа
-func BundleUrl(s storage.Storage) http.Handler {
+func BundleUrl(base string, s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if !validRequestMethod(w, r, http.MethodPost) {
 			return
@@ -59,8 +59,9 @@ func BundleUrl(s storage.Storage) http.Handler {
 		for _, v := range nonEmptyRawUrls {
 			hashed := generateHash(v, s)
 			s.Save(hashed, v)
-			hashedUrls = append(hashedUrls, hashed)
+			hashedUrls = append(hashedUrls, base+hashed)
 		}
+		w.WriteHeader(http.StatusCreated)
 		io.WriteString(w, strings.Join(hashedUrls, "\n"))
 	}
 	return http.HandlerFunc(handleFunc)

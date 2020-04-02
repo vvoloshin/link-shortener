@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	driver = "sqlite3"
-	port   = ":8080"
+	driver    = "sqlite3"
+	port      = ":8080"
+	shortBase = "https://short.com/"
 )
 
 var (
@@ -33,8 +34,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	http.Handle("/encode", handlers.EncodeUrl(server.Storage))
-	http.Handle("/bundle", handlers.BundleUrl(server.Storage))
+	http.Handle("/encode", handlers.EncodeUrl(shortBase, server.Storage))
+	http.Handle("/bundle", handlers.BundleUrl(shortBase, server.Storage))
 	http.Handle("/decode", handlers.DecodeUrl(server.Storage))
 	http.Handle("/redirect/", handlers.Redirect("/redirect/", server.Storage))
 	log.Println("starts server at port: " + server.Port)
