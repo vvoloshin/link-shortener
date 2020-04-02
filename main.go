@@ -48,7 +48,7 @@ func readConfig() *Config {
 	return &Config{
 		Driver:    "sqlite3",
 		Port:      ":8080",
-		ShortBase: "https://short.com",
+		ShortBase: "https://short.com/",
 		DBFile:    filepath.FromSlash("sqlite\\base.db"),
 		DBDir:     filepath.FromSlash("sqlite"),
 	}

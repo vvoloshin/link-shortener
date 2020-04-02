@@ -12,7 +12,6 @@ import (
 	"strings"
 )
 
-//кодировка, сохранение строки, возврат хеша
 func EncodeUrl(base string, s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if !validRequestMethod(w, r, http.MethodPost) {
@@ -22,7 +21,7 @@ func EncodeUrl(base string, s storage.Storage) http.Handler {
 			return
 		}
 		if rawUrl := r.PostFormValue("url"); rawUrl != "" {
-			hashed := generateHash(rawUrl, s)
+			hashed := generateVerifiedHash(s)
 			s.Save(hashed, rawUrl)
 			w.WriteHeader(http.StatusCreated)
 			w.Write([]byte(base + hashed))
@@ -34,7 +33,6 @@ func EncodeUrl(base string, s storage.Storage) http.Handler {
 	return http.HandlerFunc(handleFunc)
 }
 
-//кодировка, сохранение пакета строк, возврат хешей в теле ответа
 func BundleUrl(base string, s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if !validRequestMethod(w, r, http.MethodPost) {
@@ -57,7 +55,7 @@ func BundleUrl(base string, s storage.Storage) http.Handler {
 		nonEmptyRawUrls := splitToLines(body)
 		var hashedUrls []string
 		for _, v := range nonEmptyRawUrls {
-			hashed := generateHash(v, s)
+			hashed := generateVerifiedHash(s)
 			s.Save(hashed, v)
 			hashedUrls = append(hashedUrls, base+hashed)
 		}
@@ -67,22 +65,6 @@ func BundleUrl(base string, s storage.Storage) http.Handler {
 	return http.HandlerFunc(handleFunc)
 }
 
-func generateHash(rawUrl string, s storage.Storage) string {
-	var hashed string
-	for {
-		//ищем уже сохраненные ключи, если уже находим в хранилище (коллизия), генерируем заново
-		hashed = crypto.Encode(rawUrl)
-		stored, _ := s.Read(hashed)
-		if stored == "" {
-			break
-		}
-	}
-	return hashed
-}
-
-//поиск по хешу, возврат оригинальной строки
-//rawUrl - оригинальная строка, не закодированная, хранится в Storage в качестве `value`
-//hashed - хэш от rawUrl, хранится в Storage в качестве `key`
 func DecodeUrl(s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if !validRequestMethod(w, r, http.MethodPost) {
@@ -121,6 +103,18 @@ func Redirect(prefix string, s storage.Storage) http.Handler {
 		}
 	}
 	return http.HandlerFunc(handleFunc)
+}
+
+func generateVerifiedHash(s storage.Storage) string {
+	var hashed string
+	for {
+		hashed = crypto.GenerateBase58Str()
+		stored, _ := s.Read(hashed)
+		if stored == "" {
+			break
+		}
+	}
+	return hashed
 }
 
 func splitToLines(body []byte) []string {
