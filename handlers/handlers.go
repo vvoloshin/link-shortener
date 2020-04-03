@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/vvoloshin/link-shortener/config"
 	"github.com/vvoloshin/link-shortener/crypto"
 	"github.com/vvoloshin/link-shortener/storage"
 	"github.com/vvoloshin/link-shortener/util"
@@ -12,19 +13,19 @@ import (
 	"strings"
 )
 
-func EncodeUrl(base string, s storage.Storage) http.Handler {
+func EncodeUrl(c *config.Config, s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if !validRequestMethod(w, r, http.MethodPost) {
 			return
 		}
-		if !util.IsAuthenticated(w, r) {
+		if !util.IsAuthenticated(c, w, r) {
 			return
 		}
 		if rawUrl := r.PostFormValue("url"); rawUrl != "" {
 			hashed := generateVerifiedHash(s)
 			s.Save(hashed, rawUrl)
 			w.WriteHeader(http.StatusCreated)
-			w.Write([]byte(base + hashed))
+			w.Write([]byte(c.ShortBase + hashed))
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("not specified body with `url` parameter"))
@@ -33,12 +34,12 @@ func EncodeUrl(base string, s storage.Storage) http.Handler {
 	return http.HandlerFunc(handleFunc)
 }
 
-func BundleUrl(base string, s storage.Storage) http.Handler {
+func BundleUrl(c *config.Config, s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if !validRequestMethod(w, r, http.MethodPost) {
 			return
 		}
-		if !util.IsAuthenticated(w, r) {
+		if !util.IsAuthenticated(c, w, r) {
 			return
 		}
 		if !hasContentType(r, "text/plain") {
@@ -57,7 +58,7 @@ func BundleUrl(base string, s storage.Storage) http.Handler {
 		for _, v := range nonEmptyRawUrls {
 			hashed := generateVerifiedHash(s)
 			s.Save(hashed, v)
-			hashedUrls = append(hashedUrls, base+hashed)
+			hashedUrls = append(hashedUrls, c.ShortBase+hashed)
 		}
 		w.WriteHeader(http.StatusCreated)
 		io.WriteString(w, strings.Join(hashedUrls, "\n"))
