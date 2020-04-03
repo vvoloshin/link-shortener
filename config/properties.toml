@@ -1,7 +1,10 @@
-Driver = "sqlite3"
-Port = ":8080"
-ShortBase = "https://short.com/"
-DBFile = "sqlite\\base.db"
 DBDir = "sqlite"
+Driver = "sqlite3"
+DBFile = "sqlite\\base.db"
+
+ShortBase = "https://short.com"
+Port = ":8080"
+
 ApiKey = "777"
 ApiHeader = "x-api-key"
+Redirect = "/redirect/"

@@ -3,7 +3,6 @@ package crypto
 import (
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/theckman/go-securerandom"
-	"log"
 )
 
 func GenerateBase58Str() string {
@@ -27,6 +26,5 @@ func cutStringToLimit(s string, limit int) string {
 		count++
 	}
 	resShort := string(res)
-	log.Println("debug: cutStringToLimit-string: ", resShort)
 	return resShort
 }

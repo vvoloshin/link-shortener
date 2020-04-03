@@ -6,14 +6,27 @@ import (
 	"path/filepath"
 )
 
-type Config struct {
-	Driver    string
-	Port      string
-	ShortBase string
-	DBFile    string
-	DBDir     string
+type ApiSecure struct {
 	ApiKey    string
 	ApiHeader string
+}
+
+type DBConfig struct {
+	Driver string
+	DBFile string
+	DBDir  string
+}
+
+type ServerHost struct {
+	Port      string
+	ShortBase string
+	Redirect  string
+}
+
+type Config struct {
+	ServerHost
+	ApiSecure
+	DBConfig
 }
 
 func ReadConfig() *Config {
