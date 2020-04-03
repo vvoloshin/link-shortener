@@ -17,9 +17,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	http.Handle("/encode", handlers.EncodeUrl(config, sqliteServer.Storage))
+	http.Handle("/", handlers.EncodeUrl(config, sqliteServer.Storage))
 	http.Handle("/bundle", handlers.BundleUrl(config, sqliteServer.Storage))
-	http.Handle(config.ServerHost.Redirect, handlers.Redirect(config, sqliteServer.Storage))
+	http.Handle("/", handlers.Redirect(config, sqliteServer.Storage))
 	log.Println("starts server at port " + sqliteServer.Port)
 	err = http.ListenAndServe(sqliteServer.Port, nil)
 	if err != nil {

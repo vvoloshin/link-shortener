@@ -18,9 +18,8 @@ type DBConfig struct {
 }
 
 type ServerHost struct {
-	Port     string
-	Host     string
-	Redirect string
+	Port string
+	Host string
 }
 
 type Config struct {

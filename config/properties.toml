@@ -5,8 +5,7 @@ DBFile = "sqlite\\base.db"
 
 [ServerHost]
 Port = ":8080"
-Host = "https://short.com"
-Redirect = "/redirect/"
+Host = "https://short.com/"
 
 [ApiSecure]
 ApiKey = "777"
