@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"github.com/vvoloshin/link-shortener/config"
 	"github.com/vvoloshin/link-shortener/crypto"
 	"github.com/vvoloshin/link-shortener/storage"
 	"github.com/vvoloshin/link-shortener/util"
@@ -13,7 +12,7 @@ import (
 	"strings"
 )
 
-func EncodeUrl(c *config.Config, s storage.Storage) http.Handler {
+func EncodeUrl(c *util.Config, s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if !validRequestMethod(w, r, http.MethodPost) {
 			return
@@ -34,7 +33,7 @@ func EncodeUrl(c *config.Config, s storage.Storage) http.Handler {
 	return http.HandlerFunc(handleFunc)
 }
 
-func BundleUrl(c *config.Config, s storage.Storage) http.Handler {
+func BundleUrl(c *util.Config, s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if !validRequestMethod(w, r, http.MethodPost) {
 			return

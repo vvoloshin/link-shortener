@@ -1,11 +1,10 @@
 package util
 
 import (
-	"github.com/vvoloshin/link-shortener/config"
 	"net/http"
 )
 
-func IsAuthenticated(c *config.Config, w http.ResponseWriter, r *http.Request) bool {
+func IsAuthenticated(c *Config, w http.ResponseWriter, r *http.Request) bool {
 	if r.Header.Get(c.ApiHeader) == c.ApiKey {
 		return true
 	}

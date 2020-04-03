@@ -1,16 +1,16 @@
 package main
 
 import (
-	"github.com/vvoloshin/link-shortener/config"
 	"github.com/vvoloshin/link-shortener/handlers"
 	"github.com/vvoloshin/link-shortener/server"
+	"github.com/vvoloshin/link-shortener/util"
 	"log"
 	"net/http"
 	"os"
 )
 
 func main() {
-	config := config.ReadConfig()
+	config := util.ReadConfig()
 	initDb(config)
 	sqliteServer := server.NewServer(config.Port, config.DBFile, config.Driver)
 	err := sqliteServer.Storage.InitTables()
@@ -27,7 +27,7 @@ func main() {
 	}
 }
 
-func initDb(config *config.Config) {
+func initDb(config *util.Config) {
 	if isFileNotExist(config.DBFile) {
 		log.Println("database empty, try to create it")
 		createFile(config.DBDir, config.DBFile)
