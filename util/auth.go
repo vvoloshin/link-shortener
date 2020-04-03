@@ -5,7 +5,7 @@ import (
 )
 
 func IsAuthenticated(c *Config, w http.ResponseWriter, r *http.Request) bool {
-	if r.Header.Get(c.ApiHeader) == c.ApiKey {
+	if r.Header.Get(c.ApiSecure.ApiHeader) == c.ApiSecure.ApiKey {
 		return true
 	}
 	w.WriteHeader(http.StatusUnauthorized)

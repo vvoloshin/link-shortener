@@ -24,7 +24,7 @@ func EncodeUrl(c *util.Config, s storage.Storage) http.Handler {
 			hashed := generateVerifiedHash(s)
 			s.Save(hashed, rawUrl)
 			w.WriteHeader(http.StatusCreated)
-			w.Write([]byte(c.ShortBase + c.Redirect + hashed))
+			w.Write([]byte(c.ServerHost.Host + c.ServerHost.Redirect + hashed))
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("not specified body with `url` parameter"))
@@ -57,7 +57,7 @@ func BundleUrl(c *util.Config, s storage.Storage) http.Handler {
 		for _, v := range nonEmptyRawUrls {
 			hashed := generateVerifiedHash(s)
 			s.Save(hashed, v)
-			hashedUrls = append(hashedUrls, c.ShortBase+c.Redirect+hashed)
+			hashedUrls = append(hashedUrls, c.ServerHost.Host+c.ServerHost.Redirect+hashed)
 		}
 		w.WriteHeader(http.StatusCreated)
 		io.WriteString(w, strings.Join(hashedUrls, "\n"))
@@ -70,7 +70,7 @@ func Redirect(c *util.Config, s storage.Storage) http.Handler {
 		if !validRequestMethod(w, r, http.MethodGet) {
 			return
 		}
-		if hashed := strings.TrimPrefix(r.URL.Path, c.Redirect); hashed != "" {
+		if hashed := strings.TrimPrefix(r.URL.Path, c.ServerHost.Redirect); hashed != "" {
 			if rawUrl, err := s.Read(hashed); err == nil {
 				http.Redirect(w, r, rawUrl, http.StatusMovedPermanently)
 			} else {

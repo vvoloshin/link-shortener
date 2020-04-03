@@ -12,7 +12,7 @@ import (
 func main() {
 	config := util.ReadConfig()
 	initDb(config)
-	sqliteServer := server.NewServer(config.ServerHost.Port, config.DBFile, config.Driver)
+	sqliteServer := server.NewServer(config.ServerHost.Port, config.DBConfig.DBFile, config.DBConfig.Driver)
 	err := sqliteServer.Storage.InitTables()
 	if err != nil {
 		log.Fatal(err)
@@ -28,9 +28,9 @@ func main() {
 }
 
 func initDb(config *util.Config) {
-	if isFileNotExist(config.DBFile) {
+	if isFileNotExist(config.DBConfig.DBFile) {
 		log.Println("database empty, try to create it")
-		createFile(config.DBDir, config.DBFile)
+		createFile(config.DBConfig.DBDir, config.DBConfig.DBFile)
 		return
 	}
 	log.Println("found existing database file")

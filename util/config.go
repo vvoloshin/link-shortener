@@ -18,20 +18,20 @@ type DBConfig struct {
 }
 
 type ServerHost struct {
-	Port      string
-	ShortBase string
-	Redirect  string
+	Port     string
+	Host     string
+	Redirect string
 }
 
 type Config struct {
-	ServerHost
-	ApiSecure
-	DBConfig
+	ServerHost ServerHost
+	ApiSecure  ApiSecure
+	DBConfig   DBConfig
 }
 
 func ReadConfig() *Config {
 	var conf Config
-	path := filepath.FromSlash("config\\properties.toml")
+	path := filepath.FromSlash("config/properties.toml")
 	if _, err := toml.DecodeFile(path, &conf); err != nil {
 		log.Fatal("can't read configuration file from path=", path)
 		return nil

@@ -1,10 +1,13 @@
+[DBConfig]
 DBDir = "sqlite"
 Driver = "sqlite3"
 DBFile = "sqlite\\base.db"
 
-ShortBase = "https://short.com"
+[ServerHost]
 Port = ":8080"
+Host = "https://short.com"
+Redirect = "/redirect/"
 
+[ApiSecure]
 ApiKey = "777"
 ApiHeader = "x-api-key"
-Redirect = "/redirect/"
