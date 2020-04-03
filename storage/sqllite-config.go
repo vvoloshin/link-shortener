@@ -3,7 +3,7 @@ package storage
 import (
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
-	"log"
+	"github.com/vvoloshin/link-shortener/util"
 )
 
 type SQLite struct {
@@ -22,13 +22,8 @@ func NewSQLite(file, driver string) *SQLite {
 
 func connect(file, driver string) *sql.DB {
 	db, err := sql.Open(driver, file)
-	if err != nil {
-		log.Fatal("can't connect to database: ", file)
-	}
+	util.CheckErrorVerb(err, "can't connect to database: "+file)
 	err = db.Ping()
-	if err != nil {
-		log.Println("can't ping to database: ", file)
-		log.Fatal(err)
-	}
+	util.CheckErrorVerb(err, "can't ping database: "+file)
 	return db
 }

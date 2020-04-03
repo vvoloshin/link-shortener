@@ -2,7 +2,6 @@ package util
 
 import (
 	"github.com/BurntSushi/toml"
-	"log"
 	"path/filepath"
 )
 
@@ -28,13 +27,12 @@ type Config struct {
 	DBConfig   DBConfig
 }
 
-func ReadConfig() *Config {
+func ReadConfig() (*Config, error) {
 	var conf Config
 	path := filepath.FromSlash("config/properties.toml")
 	if _, err := toml.DecodeFile(path, &conf); err != nil {
-		log.Fatal("can't read configuration file from path=", path)
-		return nil
+		return nil, err
 	} else {
-		return &conf
+		return &conf, nil
 	}
 }

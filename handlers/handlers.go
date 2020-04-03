@@ -12,28 +12,7 @@ import (
 	"strings"
 )
 
-func EncodeUrl(c *util.Config, s storage.Storage) http.Handler {
-	handleFunc := func(w http.ResponseWriter, r *http.Request) {
-		if !validRequestMethod(w, r, http.MethodPost) {
-			return
-		}
-		if !util.IsAuthenticated(c, w, r) {
-			return
-		}
-		if rawUrl := r.PostFormValue("url"); rawUrl != "" {
-			hashed := generateVerifiedHash(s)
-			s.Save(hashed, rawUrl)
-			w.WriteHeader(http.StatusCreated)
-			w.Write([]byte(c.ServerHost.Host + hashed))
-		} else {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("not specified body with `url` parameter"))
-		}
-	}
-	return http.HandlerFunc(handleFunc)
-}
-
-func BundleUrl(c *util.Config, s storage.Storage) http.Handler {
+func Processing(c *util.Config, s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if !validRequestMethod(w, r, http.MethodPost) {
 			return
@@ -65,7 +44,7 @@ func BundleUrl(c *util.Config, s storage.Storage) http.Handler {
 	return http.HandlerFunc(handleFunc)
 }
 
-func Redirect(c *util.Config, s storage.Storage) http.Handler {
+func Redirect(s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if !validRequestMethod(w, r, http.MethodGet) {
 			return

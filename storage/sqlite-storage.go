@@ -35,7 +35,6 @@ func (s SQLite) Save(key string, value string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("inserted row with key: ", key)
 }
 
 func (s SQLite) Archive(key string) error {

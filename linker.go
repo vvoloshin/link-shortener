@@ -10,21 +10,19 @@ import (
 )
 
 func main() {
-	config := util.ReadConfig()
+	config, err := util.ReadConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
 	initDb(config)
 	sqliteServer := server.NewServer(config.ServerHost.Port, config.DBConfig.DBFile, config.DBConfig.Driver)
-	err := sqliteServer.Storage.InitTables()
-	if err != nil {
-		log.Fatal(err)
-	}
-	http.Handle("/", handlers.EncodeUrl(config, sqliteServer.Storage))
-	http.Handle("/bundle", handlers.BundleUrl(config, sqliteServer.Storage))
-	http.Handle("/", handlers.Redirect(config, sqliteServer.Storage))
+	err = sqliteServer.Storage.InitTables()
+	util.CheckError(err)
+	http.Handle("/processing", handlers.Processing(config, sqliteServer.Storage))
+	http.Handle("/", handlers.Redirect(sqliteServer.Storage))
 	log.Println("starts server at port " + sqliteServer.Port)
 	err = http.ListenAndServe(sqliteServer.Port, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	util.CheckError(err)
 }
 
 func initDb(config *util.Config) {
@@ -38,13 +36,9 @@ func initDb(config *util.Config) {
 
 func createFile(d, f string) {
 	err := os.Mkdir(d, 0755)
-	if err != nil {
-		log.Fatal(err)
-	}
+	util.CheckError(err)
 	_, err = os.Create(f)
-	if err != nil {
-		log.Fatal(err)
-	}
+	util.CheckError(err)
 }
 
 func isFileNotExist(f string) bool {
