@@ -34,14 +34,14 @@ func initDb(config *util.Config) {
 	log.Println("found existing database file")
 }
 
-func createFile(d, f string) {
-	err := os.Mkdir(d, 0755)
+func createFile(dir string, file string) {
+	err := os.Mkdir(dir, 0755)
 	util.CheckError(err)
-	_, err = os.Create(f)
+	_, err = os.Create(file)
 	util.CheckError(err)
 }
 
-func isFileNotExist(f string) bool {
-	_, err := os.Stat(f)
+func isFileNotExist(file string) bool {
+	_, err := os.Stat(file)
 	return os.IsNotExist(err)
 }
