@@ -65,26 +65,6 @@ func BundleUrl(base string, s storage.Storage) http.Handler {
 	return http.HandlerFunc(handleFunc)
 }
 
-func DecodeUrl(s storage.Storage) http.Handler {
-	handleFunc := func(w http.ResponseWriter, r *http.Request) {
-		if !validRequestMethod(w, r, http.MethodPost) {
-			return
-		}
-		if hashed := r.PostFormValue("url"); hashed != "" {
-			if rawUrl, err := s.Read(hashed); err == nil {
-				w.Write([]byte(rawUrl))
-			} else {
-				w.WriteHeader(http.StatusNotFound)
-				w.Write([]byte("requested url not found in Storage"))
-			}
-		} else {
-			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("key-url not found in request"))
-		}
-	}
-	return http.HandlerFunc(handleFunc)
-}
-
 func Redirect(prefix string, s storage.Storage) http.Handler {
 	handleFunc := func(w http.ResponseWriter, r *http.Request) {
 		if !validRequestMethod(w, r, http.MethodGet) {

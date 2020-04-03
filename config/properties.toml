@@ -1,0 +1,5 @@
+Driver = "sqlite3"
+Port = ":8080"
+ShortBase = "https://short.com/"
+DBFile = "sqlite\\base.db"
+DBDir = "sqlite"

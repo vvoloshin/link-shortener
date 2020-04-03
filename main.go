@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/BurntSushi/toml"
 	"github.com/vvoloshin/link-shortener/handlers"
 	"github.com/vvoloshin/link-shortener/server"
 	"log"
@@ -27,7 +28,6 @@ func main() {
 	}
 	http.Handle("/encode", handlers.EncodeUrl(config.ShortBase, sqliteServer.Storage))
 	http.Handle("/bundle", handlers.BundleUrl(config.ShortBase, sqliteServer.Storage))
-	http.Handle("/decode", handlers.DecodeUrl(sqliteServer.Storage))
 	http.Handle("/redirect/", handlers.Redirect("/redirect/", sqliteServer.Storage))
 	log.Println("starts server at port: " + sqliteServer.Port)
 	err = http.ListenAndServe(sqliteServer.Port, nil)
@@ -38,25 +38,33 @@ func main() {
 
 func initDb(config *Config) {
 	if isFileNotExist(config.DBFile) {
-		log.Println("database empty, created it")
+		log.Println("database empty, try to create it")
 		createFile(config.DBDir, config.DBFile)
+		return
 	}
 	log.Println("found existing database file")
 }
 
 func readConfig() *Config {
-	return &Config{
-		Driver:    "sqlite3",
-		Port:      ":8080",
-		ShortBase: "https://short.com/",
-		DBFile:    filepath.FromSlash("sqlite\\base.db"),
-		DBDir:     filepath.FromSlash("sqlite"),
+	var conf Config
+	path := filepath.FromSlash("config\\properties.toml")
+	if _, err := toml.DecodeFile(path, &conf); err != nil {
+		log.Fatal("can't read configuration file from path=", path)
+		return nil
+	} else {
+		return &conf
 	}
 }
 
 func createFile(d, f string) {
-	os.Mkdir(d, 0755)
-	os.Create(f)
+	err := os.Mkdir(d, 0755)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = os.Create(f)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func isFileNotExist(f string) bool {
