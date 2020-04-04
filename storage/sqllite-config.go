@@ -24,5 +24,7 @@ func connect(file, driver string) *sql.DB {
 	util.CheckErrorVerb(err, "can't connect to database: "+file)
 	err = db.Ping()
 	util.CheckErrorVerb(err, "can't ping database: "+file)
+	db.SetMaxIdleConns(20)
+	db.SetMaxOpenConns(50)
 	return db
 }
