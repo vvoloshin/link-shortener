@@ -1,10 +1,7 @@
 [DBConfig]
 DBDir = "sqlite"
 Driver = "sqlite3"
-#win
-DBFile = "sqlite\\base.db"
-#linux
-#DBFile = "./sqlite/base.db"
+DBFile = "./sqlite/base.db"
 
 [ServerHost]
 Port = ":8080"
