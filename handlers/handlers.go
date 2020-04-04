@@ -22,6 +22,7 @@ func Processing(c *util.Config, s storage.Storage) http.Handler {
 		}
 		if !hasContentType(r, "text/plain") {
 			w.WriteHeader(http.StatusUnsupportedMediaType)
+			log.Println("not specified or unsupported media-type")
 			w.Write([]byte("not specified or unsupported media-type"))
 			return
 		}
@@ -36,7 +37,7 @@ func Processing(c *util.Config, s storage.Storage) http.Handler {
 		for _, v := range nonEmptyRawUrls {
 			hashed := generateVerifiedHash(s)
 			s.Save(hashed, v)
-			hashedUrls = append(hashedUrls, c.ServerHost.Host+hashed)
+			hashedUrls = append(hashedUrls, c.Link.UrlPrefix+hashed)
 		}
 		w.WriteHeader(http.StatusCreated)
 		io.WriteString(w, strings.Join(hashedUrls, "\n"))

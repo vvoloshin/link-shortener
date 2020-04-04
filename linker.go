@@ -15,7 +15,7 @@ func main() {
 	config, err := util.ReadConfig()
 	util.CheckError(err)
 	initDb(config)
-	sqliteServer := server.NewServer(config.ServerHost.Port, config.DBConfig.DBFile, config.DBConfig.Driver)
+	sqliteServer := server.NewServer("localhost:"+config.ServerHost.Port, config.DBConfig.DBFile, config.DBConfig.Driver)
 	err = sqliteServer.Storage.InitTables()
 	util.CheckError(err)
 	http.Handle("/processing", handlers.Processing(config, sqliteServer.Storage))

@@ -18,11 +18,15 @@ type DBConfig struct {
 
 type ServerHost struct {
 	Port string
-	Host string
+}
+
+type Link struct {
+	UrlPrefix string
 }
 
 type Config struct {
 	ServerHost ServerHost
+	Link       Link
 	ApiSecure  ApiSecure
 	DBConfig   DBConfig
 }
