@@ -1,19 +1,19 @@
 package main
 
 import (
-	"github.com/vvoloshin/link-shortener/handlers"
-	"github.com/vvoloshin/link-shortener/server"
-	"github.com/vvoloshin/link-shortener/util"
+	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/vvoloshin/link-shortener/handlers"
+	"github.com/vvoloshin/link-shortener/server"
+	"github.com/vvoloshin/link-shortener/util"
 )
 
 func main() {
 	config, err := util.ReadConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
+	util.CheckError(err)
 	initDb(config)
 	sqliteServer := server.NewServer(config.ServerHost.Port, config.DBConfig.DBFile, config.DBConfig.Driver)
 	err = sqliteServer.Storage.InitTables()
@@ -27,7 +27,7 @@ func main() {
 
 func initDb(config *util.Config) {
 	if isFileNotExist(config.DBConfig.DBFile) {
-		log.Println("database empty, try to create it")
+		log.Println("database file not exist, try to create it")
 		createFile(config.DBConfig.DBDir, config.DBConfig.DBFile)
 		return
 	}
@@ -36,7 +36,6 @@ func initDb(config *util.Config) {
 
 func createFile(dir string, file string) {
 	err := os.Mkdir(dir, 0755)
-	util.CheckError(err)
 	_, err = os.Create(file)
 	util.CheckError(err)
 }
