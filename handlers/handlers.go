@@ -52,7 +52,7 @@ func Redirect(s storage.Storage) http.Handler {
 		}
 		if hashed := strings.TrimPrefix(r.URL.Path, "/"); hashed != "" {
 			if rawUrl, err := s.Read(hashed); err == nil {
-				http.Redirect(w, r, rawUrl, http.StatusMovedPermanently)
+				http.Redirect(w, r, rawUrl, http.StatusFound)
 			} else {
 				w.WriteHeader(http.StatusNotFound)
 				w.Write([]byte("requested url not found"))
